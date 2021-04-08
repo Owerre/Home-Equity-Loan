@@ -46,11 +46,7 @@ Below is the feature importances of the variables from Random Forest classifier
 
 ## Model Results
 
-The results shown below is based on best hyperparameters that optimized AUC-ROC
-
-![Results](images/results.png)
-
-Based on AUC-ROC, we see that XGBoost is a better model for this dataset
+The results shown below is based on best hyperparameters that optimized AUC-ROC. Based on AUC-ROC,XGBoost and SVM are  the best models.
 
 ![AUC Results](images/auc.png)
 
