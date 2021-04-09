@@ -69,7 +69,7 @@ class TransformationPipeline:
         X_test_scaled = num_pipeline.transform(X_test)
         return X_train_scaled, X_test_scaled, feat_nm
     
-    def cat_pipeline(self, X_train, X_test):
+    def cat_encoder(self, X_train, X_test):
         """
         Transformation pipeline of categorical variables
 
@@ -115,7 +115,7 @@ class TransformationPipeline:
                                         X_test.select_dtypes('number'))
 
         # Categorical transformation pipepline
-        cat_train, cat_test, cat_col = self.cat_pipeline(X_train.select_dtypes('O'), 
+        cat_train, cat_test, cat_col = self.cat_encoder(X_train.select_dtypes('O'), 
                                         X_test.select_dtypes('O'))
 
         # Transformed training set
