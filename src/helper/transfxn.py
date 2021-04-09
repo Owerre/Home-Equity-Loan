@@ -95,7 +95,7 @@ class TransformationPipeline:
         feat_nm = list(one_hot_encoder.get_feature_names(list(X_train.select_dtypes('O'))))
         return X_train_scaled.toarray(), X_test_scaled.toarray(), feat_nm
   
-    def my_columntransformer(self, X_train, X_test):
+    def preprocessing(self, X_train, X_test):
         """
         Transformation pipeline of data with both numerical and categorical 
         variables.
