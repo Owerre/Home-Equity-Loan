@@ -6,7 +6,10 @@ In this project, we predict the probability of default on the loan. The dataset 
 
 The dataset also contains few missing values in some variables, which were imputed before modeling.  We built four supervised classification models: Logistic regression, Support vector machine, Random forest, and XGBoost. The area under the ROC curve (AUC) was used as the performance metric for all the models. 
 
-![Image](images/img.jpg)
+![fig1](images/img.jpg)
+
+
+##  Data Set Information :  [Credit Risk Analytics](http://www.creditriskanalytics.net/citation-formats.html)
 
 ## Attributes Information
 
@@ -36,13 +39,22 @@ The dataset also contains few missing values in some variables, which were imput
 
 13. DEBTINC: Debt-to-income ratio
 
-##  Data Set Information :  [Credit Risk Analytics](http://www.creditriskanalytics.net/citation-formats.html)
+## Exploratory Data Analysis
+
+### 1. Default rate by number of recent credit inquiries & major derogatory reports
+
+![fig2](images/fig2.png)
+
+
+### 2. Default rate by number of credit lines
+
+![fig3](images/fig1.png)
 
 ## Feature Importance from Random Forest
 
 Below is the feature importances of the variables from Random Forest classifier
 
-![Feature Importances](images/imp.png)
+![fig4](images/imp.png)
 
 ## Model Results
 
