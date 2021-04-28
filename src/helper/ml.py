@@ -263,7 +263,7 @@ class SupervisedModels:
         plt.legend(loc='best')
 
         # PR curve
-        plt.subplot(222)
+        plt.subplot(223)
         plt.plot(recalls_cv, precisions_cv, color=color, label=(label) % area_prc_cv)
         plt.xlabel('Recall')
         plt.ylabel('Precision')
@@ -288,7 +288,7 @@ class SupervisedModels:
 
         # ROC curve
         # plt.rcParams.update({'font.size': 12})
-        plt.subplot(223)
+        plt.subplot(222)
         plt.plot(fpr, tpr, color=color, label=(label) % area_auc)
         plt.plot([0, 1], [0, 1], 'k--', linewidth = 0.5)
         plt.axis([0, 1, 0, 1])
