@@ -1,9 +1,6 @@
 import warnings
 warnings.filterwarnings("ignore")
 
-# Data visualization
-import matplotlib.pyplot as plt
-
 # Pyspark modules
 from pyspark.sql.types import *
 from pyspark.sql.functions import *
@@ -14,6 +11,13 @@ from pyspark.ml.feature import StandardScaler
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.evaluation import  BinaryClassificationEvaluator
 
+# Data manipulation & visualization
+import matplotlib.pyplot as plt
+import numpy as np
+
+# scikit-learn performance metrics
+from sklearn.metrics import confusion_matrix, classification_report
+
 class TransformationPipeline:
     """
     A class for transformation pipelines in PySpark
@@ -21,50 +25,23 @@ class TransformationPipeline:
 
     def __init__(self, label_col):
         """
-        Define parameters
+        Define default parameters
         """
         self.label_col = label_col
-
-    def one_val_imputer(self, df, cols, impute_with):
-        """
-        Impute column(s) with one specific value
-
-        Parameters
-        ----------
-        df: spark dataframe
-        num_cols: list of column name(s)
-        impute_with: imputation value
-
-        Returns
-        --------
-        Dataframe with imputed column(s) 
-        """
-        df = df.fillna(impute_with, subset=cols)
-        return df
-    
-    def df_to_numeric(self, df, dont_cols):
-        """
-        Convert numerical columns to double type
-        """
-        cols = [x for x in df.columns if x not in dont_cols]
-        for col in cols:
-            df = df.withColumn(col, df[col].cast(DoubleType()))
-        return df
         
     def preprocessing(self, trainDF, validDF, testDF):
         """
-        Data preprocessing steps involving  the following transformations
+        Data preprocessing steps involving  the following transformations:
 
-        1. One-Hot encode categorical variables
-        2. Impute missing values in numerical variables
-        3. Standardize numerical variables
+        1. One-Hot encoding of categorical variables
+        2. Imputation of missing values in numerical variables
+        3. Standardization of numerical variables
 
         Parameters
         -----------
         trainDF: training data set
         validDF: test data set
         testDF: test data set
-        label_col: column name for the labels or target variable
 
         Returns
         -----------
@@ -108,57 +85,100 @@ class TransformationPipeline:
         testDF_scaled = pipelineModel.transform(testDF)
         return assembler, trainDF_scaled, validDF_scaled, testDF_scaled
 
-    def eval_metrics(self, model_pred, model_nm):
+    def one_val_imputer(self, df, cols, impute_with):
         """
-        Print regression evaluation metrics
+        Impute column(s) with one specific value
+
+        Parameters
+        ----------
+        df: spark dataframe
+        num_cols: list of column name(s)
+        impute_with: imputation value
+
+        Returns
+        --------
+        Dataframe with imputed column(s) 
+        """
+        df = df.fillna(impute_with, subset=cols)
+        return df
+    
+    def df_to_numeric(self, df, cat_cols):
+        """
+        Convert numerical columns to double type
+
+        Parameters
+        ----------
+        df: spark dataframe
+        cat_cols: list of true categorical column names
+
+        Returns
+        --------
+        Transformed spark dataframe
+        """
+        cols = [x for x in df.columns if x not in cat_cols]
+        for col in cols:
+            df = df.withColumn(col, df[col].cast(DoubleType()))
+        return df
+
+    def print_eval_metrics(self, model_pred, model_nm = None):
+        """
+        Print performance metrics
 
         Parameters
         -----------
-        model_pred: model prediction
+        model_pred: model prediction dataframe
         model_nm: name of the model
-        label_col: column name for the labels or target variable
 
         Returns
         -----------
         Print metrics
         """
+        # Extract true and predicted labels
+        y_true = np.array(model_pred.select(self.label_col).toPandas())
+        y_pred = np.array(model_pred.select('prediction').toPandas())
+
+        # Compute AUROC and AUPR
         eval =  BinaryClassificationEvaluator(rawPredictionCol='rawPrediction', 
                                                 labelCol=self.label_col,
                                                  metricName="areaUnderROC")
-
         AUROC = eval.evaluate(model_pred)
         AUPRC = eval.evaluate(model_pred, {eval.metricName: "areaUnderPR"})
 
-        print("Performance metrics for {}".format(str(model_nm)))
-        print('-'*60)
-        print("AUROC: %.3f" % AUROC)
-        print("AUPRC: %.3f" % AUPRC)
-    
-    def plot_roc_pr_curves(self, model, model_pred, title, label=None):
+        # Print results
+        print('Performance metrics for {}'.format(str(model_nm)))
+        print('-' * 60)
+        print('AUROC: %f' % AUROC)
+        print('AUPRC: %f' % AUPRC)
+        print('Predicted classes:', np.unique(y_pred))
+        print('Confusion matrix:\n', confusion_matrix(y_true, y_pred))
+        print('Classification report:\n', classification_report(y_true, y_pred))
+        print('-' * 60)
+
+    def plot_roc_pr_curves(self, model, model_pred, title = None, label=None):
         """
         Plot ROC and PR curves for training set
 
         Parameters
-        ___________
+        ------------
         model: trained supervised  model
-        cv_fold: number of k-fold cross-validation
-        color: matplotlib color
+        model_pred: model prediction dataframe
+        title: matplotlib title
         label: matplotlib label
 
         Returns
-        _____________
+        ------------
         Matplotlib line plot
         """
-        # Compute the fpr and tpr for each classifier
+        # Compute the fpr and tpr
         pdf_roc = model.summary.roc.toPandas()
 
-        # Compute the recall and precision for each classifier
+        # Compute the recall and precision
         pdf_pr = model.summary.pr.toPandas()
 
+        # Compute AUROC and AUPR
         eval =  BinaryClassificationEvaluator(rawPredictionCol='rawPrediction', 
                                                 labelCol=self.label_col, 
                                                 metricName="areaUnderROC")
-
         area_auc_cv = eval.evaluate(model_pred)
         area_prc_cv = eval.evaluate(model_pred, {eval.metricName: "areaUnderPR"})
 
