@@ -171,27 +171,21 @@ class SupervisedModels:
         ax2.legend(loc = 'best')
         plt.show()
 
-    def test_prediction(self, model, X_train, y_train, X_test, y_test, model_nm = None):
+    def test_pred(self, model, X_test, y_test, model_nm = None):
         """
         Predictions on the test set
 
         Parameters
         ___________
-        model: supervised classification model
-        X_train: feature matrix of the training set
+        model: trained supervised  model
         X_test: feature matrix of the test set
         y_train: training set class labels
-        y_test: test set class labels
         model_nm: name of classifier
 
         Returns
         _____________
         Performance metrics on the test set
         """
-
-        # Fit the training set
-        model.fit(X_train, y_train)
-
         # Make prediction on the test set
         y_pred = model.predict(X_test)
 
