@@ -1,3 +1,8 @@
+####################################
+# Author: S. A. Owerre
+# Date modified: 12/03/2021
+####################################
+
 # Filter warnings
 import warnings
 warnings.filterwarnings("ignore")
